@@ -8,6 +8,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.rejown.pixelbeam.presentation.home.HomeScreen
 import com.rejown.pixelbeam.presentation.sender.picker.ImagePickerScreen
+import com.rejown.pixelbeam.presentation.sender.preview.ImagePreviewScreen
+import com.rejown.pixelbeam.presentation.sender.display.QRDisplayScreen
 import com.rejown.pixelbeam.presentation.receiver.scanner.QRScannerScreen
 
 /**
@@ -51,34 +53,32 @@ fun PixelBeamNavHost(
         composable<Screen.ImagePreview> { backStackEntry ->
             val imagePreview = backStackEntry.toRoute<Screen.ImagePreview>()
 
-            // TODO: Implement ImagePreviewScreen
-            // ImagePreviewScreen(
-            //     imageUri = imagePreview.imageUri,
-            //     onApprove = {
-            //         // After compression and QR generation
-            //         navController.navigate(Screen.QRDisplay) {
-            //             // Remove ImagePreview from back stack
-            //             popUpTo(Screen.ImagePicker) { inclusive = true }
-            //         }
-            //     },
-            //     onCancel = {
-            //         navController.popBackStack()
-            //     }
-            // )
+            ImagePreviewScreen(
+                imageUri = imagePreview.imageUri,
+                onApprove = {
+                    // After compression, navigate to QR display
+                    navController.navigate(Screen.QRDisplay) {
+                        // Remove ImagePreview and ImagePicker from back stack
+                        popUpTo(Screen.Home) { inclusive = false }
+                    }
+                },
+                onCancel = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         composable<Screen.QRDisplay> {
-            // TODO: Implement QRDisplayScreen
-            // QRDisplayScreen(
-            //     onComplete = {
-            //         navController.navigate(Screen.Home) {
-            //             popUpTo(Screen.Home) { inclusive = true }
-            //         }
-            //     },
-            //     onBackPressed = {
-            //         navController.popBackStack()
-            //     }
-            // )
+            QRDisplayScreen(
+                onComplete = {
+                    navController.navigate(Screen.Home) {
+                        popUpTo(Screen.Home) { inclusive = true }
+                    }
+                },
+                onBackPressed = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         // ============ RECEIVER FLOW ============
@@ -87,6 +87,11 @@ fun PixelBeamNavHost(
             QRScannerScreen(
                 onBackPressed = {
                     navController.popBackStack()
+                },
+                onScanComplete = {
+                    navController.navigate(Screen.ImageResult) {
+                        popUpTo(Screen.Home) { inclusive = false }
+                    }
                 }
             )
         }

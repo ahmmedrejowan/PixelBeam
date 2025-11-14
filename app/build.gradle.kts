@@ -74,6 +74,21 @@ dependencies {
     // Coil for Image Loading
     implementation(libs.coil.compose)
 
+    // ZXing for QR Code Generation
+    implementation(libs.zxing.core)
+
+    // CameraX for Camera Preview
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+
+    // ML Kit for Barcode Scanning
+    implementation(libs.mlkit.barcode.scanning)
+
+    // Accompanist for Permissions
+    implementation(libs.accompanist.permissions)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
