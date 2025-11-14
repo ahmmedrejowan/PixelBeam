@@ -7,41 +7,37 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.compose.rememberNavController
+import com.rejown.pixelbeam.presentation.navigation.PixelBeamNavHost
 import com.rejown.pixelbeam.ui.theme.PixelBeamTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Install splash screen before calling super.onCreate()
+        installSplashScreen()
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             PixelBeamTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                PixelBeamApp()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun PixelBeamApp() {
+    val navController = rememberNavController()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    PixelBeamTheme {
-        Greeting("Android")
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        PixelBeamNavHost(
+            navController = navController,
+            modifier = Modifier.padding(innerPadding)
+        )
     }
 }
