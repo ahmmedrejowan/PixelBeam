@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.rejown.pixelbeam.data.model.QRChunk
 import com.rejown.pixelbeam.data.model.TransferMetadata
 import com.rejown.pixelbeam.domain.util.ImageReconstructor
+import com.rejown.pixelbeam.domain.util.ReconstructedImageHolder
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -150,6 +151,9 @@ class QRScannerViewModel(
             val bitmap = imageReconstructor.reconstructImage(sortedChunks)
 
             if (bitmap != null && metadata != null) {
+                // Store in holder for ImageResultScreen
+                ReconstructedImageHolder.store(bitmap, metadata!!)
+
                 _state.update {
                     it.copy(scanState = ScanState.Success(bitmap, metadata!!))
                 }

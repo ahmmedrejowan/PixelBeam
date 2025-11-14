@@ -9,6 +9,7 @@ import com.rejown.pixelbeam.presentation.sender.picker.ImagePickerViewModel
 import com.rejown.pixelbeam.presentation.sender.preview.ImagePreviewViewModel
 import com.rejown.pixelbeam.presentation.sender.display.QRDisplayViewModel
 import com.rejown.pixelbeam.presentation.receiver.scanner.QRScannerViewModel
+import com.rejown.pixelbeam.presentation.receiver.result.ImageResultViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -28,4 +29,5 @@ val appModule = module {
     viewModel { ImagePreviewViewModel(get()) }
     viewModel { QRDisplayViewModel(get()) }
     viewModel { QRScannerViewModel(get()) }
+    viewModel { ImageResultViewModel(androidContext()) }
 }

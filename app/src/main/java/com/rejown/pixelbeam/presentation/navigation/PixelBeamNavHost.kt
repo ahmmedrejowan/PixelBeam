@@ -11,6 +11,7 @@ import com.rejown.pixelbeam.presentation.sender.picker.ImagePickerScreen
 import com.rejown.pixelbeam.presentation.sender.preview.ImagePreviewScreen
 import com.rejown.pixelbeam.presentation.sender.display.QRDisplayScreen
 import com.rejown.pixelbeam.presentation.receiver.scanner.QRScannerScreen
+import com.rejown.pixelbeam.presentation.receiver.result.ImageResultScreen
 
 /**
  * Main navigation host for PixelBeam app
@@ -97,22 +98,18 @@ fun PixelBeamNavHost(
         }
 
         composable<Screen.ImageResult> {
-            // TODO: Implement ImageResultScreen
-            // ImageResultScreen(
-            //     onSave = {
-            //         navController.navigate(Screen.Home) {
-            //             popUpTo(Screen.Home) { inclusive = true }
-            //         }
-            //     },
-            //     onDiscard = {
-            //         navController.navigate(Screen.Home) {
-            //             popUpTo(Screen.Home) { inclusive = true }
-            //         }
-            //     },
-            //     onBackPressed = {
-            //         navController.popBackStack()
-            //     }
-            // )
+            ImageResultScreen(
+                onSave = {
+                    navController.navigate(Screen.Home) {
+                        popUpTo(Screen.Home) { inclusive = true }
+                    }
+                },
+                onDiscard = {
+                    navController.navigate(Screen.Home) {
+                        popUpTo(Screen.Home) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }
