@@ -23,7 +23,9 @@ sealed class QRGenerationState {
 data class QRDisplayState(
     val generationState: QRGenerationState = QRGenerationState.Idle,
     val currentIndex: Int = 0,
-    val isAutoAdvancing: Boolean = true,
+    val isAutoAdvancing: Boolean = false,
+    val hasStarted: Boolean = false,
+    val hasReachedEnd: Boolean = false,
     val autoAdvanceDelayMs: Long = 1500,
     val availableDelays: List<Long> = listOf(200L, 300L, 400L, 500L, 1000L, 1500L, 2000L, 3000L, 5000L)
 )
@@ -76,11 +78,7 @@ class QRDisplayViewModel(
                         generationState = QRGenerationState.Success(chunksWithQR)
                     )
                 }
-
-                // Start auto-advance if enabled
-                if (_state.value.isAutoAdvancing) {
-                    startAutoAdvance()
-                }
+                // Don't auto-start - wait for user to click Start button
 
             } catch (e: Exception) {
                 _state.update {
@@ -101,7 +99,13 @@ class QRDisplayViewModel(
         if (generationState is QRGenerationState.Success) {
             val chunks = generationState.chunks
             if (currentState.currentIndex < chunks.size - 1) {
-                _state.update { it.copy(currentIndex = it.currentIndex + 1) }
+                val newIndex = currentState.currentIndex + 1
+                _state.update {
+                    it.copy(
+                        currentIndex = newIndex,
+                        hasReachedEnd = newIndex == chunks.size - 1
+                    )
+                }
             }
         }
     }
@@ -114,16 +118,29 @@ class QRDisplayViewModel(
     }
 
     fun setCurrentIndex(index: Int) {
-        val generationState = _state.value.generationState
+        val currentState = _state.value
+        val generationState = currentState.generationState
         if (generationState is QRGenerationState.Success) {
             val maxIndex = generationState.chunks.size - 1
             val validIndex = index.coerceIn(0, maxIndex)
-            _state.update { it.copy(currentIndex = validIndex) }
+            _state.update {
+                it.copy(
+                    currentIndex = validIndex,
+                    hasReachedEnd = currentState.hasReachedEnd || validIndex == maxIndex
+                )
+            }
+        }
+    }
+
+    fun startTransfer() {
+        _state.update { it.copy(hasStarted = true, isAutoAdvancing = true) }
+        viewModelScope.launch {
+            startAutoAdvance()
         }
     }
 
     fun toggleAutoAdvance() {
-        _state.update { it.copy(isAutoAdvancing = !it.isAutoAdvancing) }
+        _state.update { it.copy(isAutoAdvancing = !it.isAutoAdvancing, hasStarted = true) }
 
         if (_state.value.isAutoAdvancing) {
             viewModelScope.launch {
@@ -146,10 +163,16 @@ class QRDisplayViewModel(
             if (generationState is QRGenerationState.Success) {
                 val chunks = generationState.chunks
                 if (currentState.currentIndex < chunks.size - 1) {
-                    _state.update { it.copy(currentIndex = it.currentIndex + 1) }
+                    val newIndex = currentState.currentIndex + 1
+                    _state.update {
+                        it.copy(
+                            currentIndex = newIndex,
+                            hasReachedEnd = newIndex == chunks.size - 1
+                        )
+                    }
                 } else {
                     // Reached end, stop auto-advance
-                    _state.update { it.copy(isAutoAdvancing = false) }
+                    _state.update { it.copy(isAutoAdvancing = false, hasReachedEnd = true) }
                 }
             }
         }
