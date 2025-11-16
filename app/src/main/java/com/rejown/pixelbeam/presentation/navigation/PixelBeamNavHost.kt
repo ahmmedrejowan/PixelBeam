@@ -73,11 +73,11 @@ fun PixelBeamNavHost(
             QRDisplayScreen(
                 onComplete = {
                     navController.navigate(Screen.Home) {
-                        popUpTo(Screen.Home) { inclusive = true }
+                        popUpTo(Screen.Home) { inclusive = false }
                     }
                 },
                 onBackPressed = {
-                    navController.popBackStack()
+                    navController.popBackStack(Screen.Home, inclusive = false)
                 }
             )
         }
@@ -101,12 +101,12 @@ fun PixelBeamNavHost(
             ImageResultScreen(
                 onSave = {
                     navController.navigate(Screen.Home) {
-                        popUpTo(Screen.Home) { inclusive = true }
+                        popUpTo(Screen.Home) { inclusive = false }
                     }
                 },
                 onDiscard = {
                     navController.navigate(Screen.Home) {
-                        popUpTo(Screen.Home) { inclusive = true }
+                        popUpTo(Screen.Home) { inclusive = false }
                     }
                 }
             )

@@ -129,7 +129,10 @@ fun ImageResultScreen(
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.error
                     )
-                    Button(onClick = onDiscard) {
+                    Button(onClick = {
+                        ReconstructedImageHolder.clear(context)
+                        onDiscard()
+                    }) {
                         Text("Go Back")
                     }
                 }
