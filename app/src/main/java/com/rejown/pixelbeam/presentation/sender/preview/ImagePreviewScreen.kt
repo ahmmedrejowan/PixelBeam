@@ -105,89 +105,61 @@ fun ImagePreviewScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // File info
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text(
-                                text = "Ready to Transfer",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text("File Name:")
-                                Text(
-                                    text = compressionState.compressedImage.filename,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text("File Size:")
-                                Text(
-                                    text = String.format("%.2f KB", compressionState.compressedImage.originalSizeKB),
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text("Transfer Mode:")
-                                Text(
-                                    text = "Original (No Compression)",
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text("Checksum:")
-                                Text(
-                                    text = compressionState.compressedImage.fileChecksum.take(16) + "...",
-                                    fontWeight = FontWeight.SemiBold,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-                        }
-                    }
-
-                    // Image preview
-                    Text(
-                        text = "Image Preview",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-
+                    // Image preview (larger, more prominent)
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(400.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            .height(320.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                     ) {
                         Image(
                             bitmap = compressionState.compressedImage.compressedBitmap.asImageBitmap(),
-                            contentDescription = "Compressed preview",
+                            contentDescription = "Image preview",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Fit
                         )
+                    }
+
+                    // File info card
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                text = "Transfer Details",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            InfoRow(
+                                label = "File Name",
+                                value = compressionState.compressedImage.filename
+                            )
+
+                            InfoRow(
+                                label = "File Size",
+                                value = String.format("%.2f KB", compressionState.compressedImage.originalSizeKB),
+                                valueColor = MaterialTheme.colorScheme.primary
+                            )
+
+                            InfoRow(
+                                label = "Transfer Mode",
+                                value = "Original (No Compression)"
+                            )
+
+                            InfoRow(
+                                label = "Checksum",
+                                value = compressionState.compressedImage.fileChecksum.take(16) + "...",
+                                valueStyle = MaterialTheme.typography.bodySmall
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -198,14 +170,18 @@ fun ImagePreviewScreen(
                             TempDataHolder.compressedImage = compressionState.compressedImage
                             onApprove()
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
                     ) {
                         Text("Generate QR Codes")
                     }
 
                     OutlinedButton(
                         onClick = onCancel,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
                     ) {
                         Text("Cancel")
                     }
@@ -251,5 +227,31 @@ fun ImagePreviewScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun InfoRow(
+    label: String,
+    value: String,
+    valueColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    valueStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyMedium
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+        )
+        Text(
+            text = value,
+            style = valueStyle,
+            fontWeight = FontWeight.SemiBold,
+            color = valueColor
+        )
     }
 }
