@@ -1,6 +1,8 @@
 package com.rejown.pixelbeam.presentation.receiver.result
 
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,28 +59,37 @@ fun ImageResultScreen(
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
 
+    // File picker launcher for saving image
+    val saveFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("image/jpeg")
+    ) { uri ->
+        if (uri != null) {
+            viewModel.saveToUri(uri)
+        }
+    }
+
     // Load image from holder
     LaunchedEffect(Unit) {
-        val bitmap = ReconstructedImageHolder.bitmap
+        val imageUri = ReconstructedImageHolder.imageUri
         val metadata = ReconstructedImageHolder.metadata
 
-        if (bitmap != null && metadata != null) {
-            viewModel.setImageData(bitmap, metadata)
+        if (imageUri != null && metadata != null) {
+            viewModel.setImageData(imageUri, metadata)
         }
     }
 
     // Clean up when leaving screen
     DisposableEffect(Unit) {
         onDispose {
-            // Note: Don't clear here, only clear after save/discard action
+            // Note: Cache file is cleared after save/discard action
         }
     }
 
     // Handle save success
     LaunchedEffect(state.saveState) {
         if (state.saveState is SaveState.Success) {
-            Toast.makeText(context, "Image saved to gallery!", Toast.LENGTH_LONG).show()
-            ReconstructedImageHolder.clear()
+            Toast.makeText(context, "Image saved!", Toast.LENGTH_LONG).show()
+            ReconstructedImageHolder.clear(context)
             onSave()
         }
     }
@@ -89,7 +100,7 @@ fun ImageResultScreen(
                 title = { Text("Received Image") },
                 navigationIcon = {
                     IconButton(onClick = {
-                        ReconstructedImageHolder.clear()
+                        ReconstructedImageHolder.clear(context)
                         onDiscard()
                     }) {
                         Icon(
@@ -102,7 +113,7 @@ fun ImageResultScreen(
         },
         modifier = modifier.fillMaxSize()
     ) { paddingValues ->
-        if (state.bitmap == null) {
+        if (state.imageUri == null) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -222,9 +233,9 @@ fun ImageResultScreen(
                         .height(400.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                 ) {
-                    state.bitmap?.let { bitmap ->
-                        Image(
-                            bitmap = bitmap.asImageBitmap(),
+                    state.imageUri?.let { uri ->
+                        coil.compose.AsyncImage(
+                            model = uri,
                             contentDescription = "Received image",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Fit
@@ -252,14 +263,17 @@ fun ImageResultScreen(
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Button(
-                            onClick = { viewModel.saveToGallery() },
+                            onClick = {
+                                val filename = state.metadata?.filename ?: "pixelbeam_${System.currentTimeMillis()}.jpg"
+                                saveFileLauncher.launch(filename)
+                            },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text("Retry Save")
                         }
                         OutlinedButton(
                             onClick = {
-                                ReconstructedImageHolder.clear()
+                                ReconstructedImageHolder.clear(context)
                                 onDiscard()
                             },
                             modifier = Modifier.fillMaxWidth()
@@ -270,15 +284,18 @@ fun ImageResultScreen(
 
                     else -> {
                         Button(
-                            onClick = { viewModel.saveToGallery() },
+                            onClick = {
+                                val filename = state.metadata?.filename ?: "pixelbeam_${System.currentTimeMillis()}.jpg"
+                                saveFileLauncher.launch(filename)
+                            },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Save to Gallery")
+                            Text("Save Image")
                         }
 
                         OutlinedButton(
                             onClick = {
-                                ReconstructedImageHolder.clear()
+                                ReconstructedImageHolder.clear(context)
                                 onDiscard()
                             },
                             modifier = Modifier.fillMaxWidth()

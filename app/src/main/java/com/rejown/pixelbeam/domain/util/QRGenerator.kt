@@ -22,7 +22,7 @@ class QRGenerator {
 
     companion object {
         private const val QR_SIZE = 512
-        private const val CHUNK_SIZE = 2800 // Safe size for QR codes with error correction
+        private const val CHUNK_SIZE = 600 // Safe size for QR codes with medium error correction
         private const val HEADER = "IMG"
     }
 
@@ -33,7 +33,7 @@ class QRGenerator {
         try {
             val hints = hashMapOf<EncodeHintType, Any>().apply {
                 put(EncodeHintType.CHARACTER_SET, "UTF-8")
-                put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.M)
+                put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L) // Low error correction for more data capacity
                 put(EncodeHintType.MARGIN, 1)
             }
 
@@ -123,22 +123,59 @@ class QRGenerator {
             )
         }
 
-        // Add metadata as the last chunk
-        val metadataJson = Json.encodeToString(metadata)
-        val metadataContent = "META|$metadataJson"
+        // Add metadata as the first chunk (index 0)
+        // Update metadata with correct total chunks
+        val updatedMetadata = metadata.copy(totalChunks = totalChunks + 1)
+        val metadataJson = Json.encodeToString(updatedMetadata)
+        val metadataChecksum = calculateChecksum(metadataJson)
 
+        // Format: IMG|TOTAL|INDEX|CHECKSUM|DATA
+        val metadataContent = buildString {
+            append(HEADER)
+            append("|")
+            append((totalChunks + 1).toString().padStart(3, '0'))
+            append("|")
+            append("000") // Index 0 for metadata
+            append("|")
+            append(metadataChecksum)
+            append("|")
+            append(metadataJson)
+        }
+
+        // Insert metadata as first chunk
         chunks.add(
+            0,
             QRChunk(
-                index = totalChunks,
+                index = 0,
                 total = totalChunks + 1,
                 content = metadataContent,
-                checksum = calculateChecksum(metadataJson),
+                checksum = metadataChecksum,
+                data = metadataJson,
                 isMetadata = true,
-                metadata = metadata
+                metadata = updatedMetadata
             )
         )
 
-        chunks
+        // Update indices of data chunks
+        val reindexedChunks = chunks.mapIndexed { idx, chunk ->
+            if (idx == 0) {
+                chunk // Keep metadata chunk as is
+            } else {
+                // Update data chunks to have index starting from 1
+                val newIndex = idx
+                val newContent = chunk.content.replace(
+                    "IMG|${totalChunks.toString().padStart(3, '0')}|${(idx - 1).toString().padStart(3, '0')}",
+                    "IMG|${(totalChunks + 1).toString().padStart(3, '0')}|${newIndex.toString().padStart(3, '0')}"
+                )
+                chunk.copy(
+                    index = newIndex,
+                    total = totalChunks + 1,
+                    content = newContent
+                )
+            }
+        }
+
+        reindexedChunks
     }
 
     /**

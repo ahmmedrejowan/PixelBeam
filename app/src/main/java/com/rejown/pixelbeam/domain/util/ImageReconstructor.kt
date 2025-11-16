@@ -103,9 +103,12 @@ class ImageReconstructor {
         try {
             val md5 = MessageDigest.getInstance("MD5")
             val digest = md5.digest(chunk.data.toByteArray())
-            val calculatedChecksum = digest.joinToString("") { "%02x".format(it) }
+            // Take only first 4 bytes to match QRGenerator's checksum format
+            val calculatedChecksum = digest.take(4)
+                .joinToString("") { "%02x".format(it) }
+                .uppercase()
 
-            val isValid = calculatedChecksum == chunk.checksum
+            val isValid = calculatedChecksum.equals(chunk.checksum, ignoreCase = true)
             if (!isValid) {
                 Log.w(TAG, "Checksum mismatch for chunk ${chunk.index}")
                 Log.w(TAG, "Expected: ${chunk.checksum}, Got: $calculatedChecksum")

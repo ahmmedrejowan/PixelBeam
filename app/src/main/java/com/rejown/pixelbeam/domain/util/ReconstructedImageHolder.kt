@@ -1,50 +1,35 @@
 package com.rejown.pixelbeam.domain.util
 
+import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
+import androidx.core.content.FileProvider
 import com.rejown.pixelbeam.data.model.TransferMetadata
+import java.io.File
+import java.io.FileOutputStream
 
 /**
  * Temporary holder for reconstructed image data between screens.
  *
- * This is a singleton holder that temporarily stores the reconstructed Bitmap and
- * metadata during the receiver flow navigation (QRScanner -> ImageResult).
- *
- * Design considerations:
- * - Bitmaps are too large for SavedStateHandle (~1MB limit)
- * - Shared ViewModels require complex navigation graph scoping
- * - This singleton approach is simple and effective for short-lived data
- *
- * Memory management:
- * - Data is stored when QRScannerViewModel completes reconstruction
- * - Data is retrieved when ImageResultScreen launches
- * - Data is cleared when user saves/discards the image
- * - Bitmaps are properly recycled to prevent memory leaks
- *
- * Thread safety: This holder is accessed from the main thread only (UI operations)
+ * Now saves images to cache directory immediately to avoid bitmap recycling issues.
+ * The cached file is used for preview and save operations.
  */
 object ReconstructedImageHolder {
     private const val TAG = "ReconstructedImageHolder"
+    private const val CACHE_FILE_NAME = "received_image_temp.jpg"
 
     @Volatile
-    private var _bitmap: Bitmap? = null
+    private var _cacheFileUri: Uri? = null
 
     @Volatile
     private var _metadata: TransferMetadata? = null
 
     /**
-     * The reconstructed bitmap, or null if none is stored
+     * The cached image file URI, or null if none is stored
      */
-    var bitmap: Bitmap?
-        get() = _bitmap
-        set(value) {
-            // Clear previous bitmap before setting new one
-            if (_bitmap != null && _bitmap != value) {
-                clearBitmap()
-            }
-            _bitmap = value
-            Log.d(TAG, "Bitmap stored: ${value?.width}x${value?.height}")
-        }
+    val imageUri: Uri?
+        get() = _cacheFileUri
 
     /**
      * The transfer metadata associated with the reconstructed image
@@ -57,38 +42,59 @@ object ReconstructedImageHolder {
         }
 
     /**
-     * Clears the stored bitmap and metadata, recycling the bitmap to free memory
+     * Save bitmap to cache and store metadata
      */
-    fun clear() {
-        clearBitmap()
-        _metadata = null
-        Log.d(TAG, "ReconstructedImageHolder cleared")
+    fun store(context: Context, bitmap: Bitmap, metadata: TransferMetadata) {
+        try {
+            // Clear previous cache file
+            clear(context)
+
+            // Save bitmap to cache
+            val cacheFile = File(context.cacheDir, CACHE_FILE_NAME)
+            FileOutputStream(cacheFile).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 95, out)
+            }
+
+            // Get content URI for the cache file
+            _cacheFileUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                cacheFile
+            )
+
+            _metadata = metadata
+
+            // Recycle the bitmap now that it's saved
+            if (!bitmap.isRecycled) {
+                bitmap.recycle()
+            }
+
+            Log.d(TAG, "Image saved to cache: $cacheFile")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error storing image to cache", e)
+        }
     }
 
-    private fun clearBitmap() {
-        _bitmap?.let { bmp ->
-            try {
-                if (!bmp.isRecycled) {
-                    bmp.recycle()
-                    Log.d(TAG, "Bitmap recycled")
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error recycling bitmap", e)
+    /**
+     * Clears the cached file and metadata
+     */
+    fun clear(context: Context) {
+        try {
+            val cacheFile = File(context.cacheDir, CACHE_FILE_NAME)
+            if (cacheFile.exists()) {
+                cacheFile.delete()
+                Log.d(TAG, "Cache file deleted")
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error deleting cache file", e)
         }
-        _bitmap = null
+        _cacheFileUri = null
+        _metadata = null
+        Log.d(TAG, "ReconstructedImageHolder cleared")
     }
 
     /**
      * Check if data is currently stored
      */
-    fun hasData(): Boolean = _bitmap != null && _metadata != null
-
-    /**
-     * Store both bitmap and metadata together
-     */
-    fun store(bitmap: Bitmap, metadata: TransferMetadata) {
-        this.bitmap = bitmap
-        this.metadata = metadata
-    }
+    fun hasData(): Boolean = _cacheFileUri != null && _metadata != null
 }

@@ -24,7 +24,8 @@ data class QRDisplayState(
     val generationState: QRGenerationState = QRGenerationState.Idle,
     val currentIndex: Int = 0,
     val isAutoAdvancing: Boolean = true,
-    val autoAdvanceDelayMs: Long = 2000
+    val autoAdvanceDelayMs: Long = 1500,
+    val availableDelays: List<Long> = listOf(200L, 300L, 400L, 500L, 1000L, 1500L, 2000L, 3000L, 5000L)
 )
 
 class QRDisplayViewModel(
@@ -111,6 +112,15 @@ class QRDisplayViewModel(
         }
     }
 
+    fun setCurrentIndex(index: Int) {
+        val generationState = _state.value.generationState
+        if (generationState is QRGenerationState.Success) {
+            val maxIndex = generationState.chunks.size - 1
+            val validIndex = index.coerceIn(0, maxIndex)
+            _state.update { it.copy(currentIndex = validIndex) }
+        }
+    }
+
     fun toggleAutoAdvance() {
         _state.update { it.copy(isAutoAdvancing = !it.isAutoAdvancing) }
 
@@ -119,6 +129,10 @@ class QRDisplayViewModel(
                 startAutoAdvance()
             }
         }
+    }
+
+    fun setAutoAdvanceDelay(delayMs: Long) {
+        _state.update { it.copy(autoAdvanceDelayMs = delayMs) }
     }
 
     private suspend fun startAutoAdvance() {

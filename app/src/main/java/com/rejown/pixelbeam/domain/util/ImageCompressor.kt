@@ -1,9 +1,11 @@
 package com.rejown.pixelbeam.domain.util
 
 import android.content.Context
+import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.provider.OpenableColumns
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
@@ -26,12 +28,13 @@ class ImageCompressor(private val context: Context) {
      */
     suspend fun compressImage(uri: Uri): CompressedImage? = withContext(Dispatchers.IO) {
         try {
+            // Get actual file size from URI
+            val originalFileSize = getFileSize(uri)
+
             // Load original bitmap
             val originalBitmap = context.contentResolver.openInputStream(uri)?.use { inputStream ->
                 BitmapFactory.decodeStream(inputStream)
             } ?: return@withContext null
-
-            val originalSize = getImageSize(originalBitmap)
 
             // Compress to target size
             val compressedBitmap = resizeToTargetSize(originalBitmap, TARGET_SIZE_KB)
@@ -40,7 +43,7 @@ class ImageCompressor(private val context: Context) {
             CompressedImage(
                 originalBitmap = originalBitmap,
                 compressedBitmap = compressedBitmap,
-                originalSizeBytes = originalSize,
+                originalSizeBytes = originalFileSize,
                 compressedSizeBytes = compressedBytes.size.toLong(),
                 compressedBytes = compressedBytes
             )
@@ -102,10 +105,38 @@ class ImageCompressor(private val context: Context) {
     }
 
     /**
-     * Get approximate size of bitmap in bytes
+     * Get actual file size from URI in bytes using ContentResolver
      */
-    private fun getImageSize(bitmap: Bitmap): Long {
-        return (bitmap.byteCount).toLong()
+    private fun getFileSize(uri: Uri): Long {
+        return try {
+            var fileSize = 0L
+
+            // Try to get file size from content resolver using cursor
+            context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+                if (sizeIndex != -1 && cursor.moveToFirst()) {
+                    fileSize = cursor.getLong(sizeIndex)
+                }
+            }
+
+            // Fallback: try to read the actual file size
+            if (fileSize == 0L) {
+                context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                    var totalBytes = 0L
+                    val buffer = ByteArray(8192)
+                    var bytesRead: Int
+                    while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                        totalBytes += bytesRead
+                    }
+                    fileSize = totalBytes
+                }
+            }
+
+            fileSize
+        } catch (e: Exception) {
+            e.printStackTrace()
+            0L
+        }
     }
 }
 

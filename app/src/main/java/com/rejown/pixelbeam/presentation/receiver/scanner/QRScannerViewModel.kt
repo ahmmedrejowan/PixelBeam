@@ -1,5 +1,6 @@
 package com.rejown.pixelbeam.presentation.receiver.scanner
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -22,7 +23,7 @@ sealed class ScanState {
         val totalChunks: Int,
         val metadata: TransferMetadata?
     ) : ScanState()
-    data class Reconstructing : ScanState()
+    data object Reconstructing : ScanState()
     data class Success(val bitmap: Bitmap, val metadata: TransferMetadata) : ScanState()
     data class Error(val message: String) : ScanState()
 }
@@ -34,7 +35,8 @@ data class QRScannerState(
 )
 
 class QRScannerViewModel(
-    private val imageReconstructor: ImageReconstructor
+    private val imageReconstructor: ImageReconstructor,
+    private val context: Context
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(QRScannerState())
@@ -115,9 +117,9 @@ class QRScannerViewModel(
 
             // Check if this is metadata chunk
             val isMetadata = data?.startsWith("{") == true
-            val metadata = if (isMetadata && data != null) {
+            val metadata = if (isMetadata) {
                 try {
-                    json.decodeFromString<TransferMetadata>(data)
+                    json.decodeFromString<TransferMetadata>(data!!)
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to parse metadata", e)
                     null
@@ -151,8 +153,8 @@ class QRScannerViewModel(
             val bitmap = imageReconstructor.reconstructImage(sortedChunks)
 
             if (bitmap != null && metadata != null) {
-                // Store in holder for ImageResultScreen
-                ReconstructedImageHolder.store(bitmap, metadata!!)
+                // Store in cache for ImageResultScreen
+                ReconstructedImageHolder.store(context, bitmap, metadata!!)
 
                 _state.update {
                     it.copy(scanState = ScanState.Success(bitmap, metadata!!))

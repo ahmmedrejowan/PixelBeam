@@ -1,12 +1,7 @@
 package com.rejown.pixelbeam.presentation.receiver.result
 
-import android.content.ContentValues
 import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Build
-import android.os.Environment
-import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,7 +13,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.IOException
 
 sealed class SaveState {
     data object Idle : SaveState()
@@ -29,7 +23,7 @@ sealed class SaveState {
 
 data class ImageResultState(
     val saveState: SaveState = SaveState.Idle,
-    val bitmap: Bitmap? = null,
+    val imageUri: Uri? = null,
     val metadata: TransferMetadata? = null
 )
 
@@ -44,35 +38,34 @@ class ImageResultViewModel(
         private const val TAG = "ImageResultViewModel"
     }
 
-    fun setImageData(bitmap: Bitmap, metadata: TransferMetadata) {
+    fun setImageData(imageUri: Uri, metadata: TransferMetadata) {
         _state.update {
             it.copy(
-                bitmap = bitmap,
+                imageUri = imageUri,
                 metadata = metadata
             )
         }
     }
 
-    fun saveToGallery() {
+    fun saveToUri(targetUri: Uri) {
         viewModelScope.launch {
             try {
                 _state.update { it.copy(saveState = SaveState.Saving) }
 
-                val bitmap = _state.value.bitmap
-                val metadata = _state.value.metadata
+                val sourceUri = _state.value.imageUri
 
-                if (bitmap == null) {
+                if (sourceUri == null) {
                     _state.update {
                         it.copy(saveState = SaveState.Error("No image to save"))
                     }
                     return@launch
                 }
 
-                val uri = saveImageToGallery(bitmap, metadata?.filename ?: "pixelbeam_${System.currentTimeMillis()}.jpg")
+                val success = copyImageToUri(sourceUri, targetUri)
 
-                if (uri != null) {
-                    _state.update { it.copy(saveState = SaveState.Success(uri)) }
-                    Log.d(TAG, "Image saved to gallery: $uri")
+                if (success) {
+                    _state.update { it.copy(saveState = SaveState.Success(targetUri)) }
+                    Log.d(TAG, "Image saved: $targetUri")
                 } else {
                     _state.update {
                         it.copy(saveState = SaveState.Error("Failed to save image"))
@@ -88,42 +81,17 @@ class ImageResultViewModel(
         }
     }
 
-    private suspend fun saveImageToGallery(bitmap: Bitmap, filename: String): Uri? = withContext(Dispatchers.IO) {
+    private suspend fun copyImageToUri(sourceUri: Uri, targetUri: Uri): Boolean = withContext(Dispatchers.IO) {
         try {
-            val contentValues = ContentValues().apply {
-                put(MediaStore.Images.Media.DISPLAY_NAME, filename)
-                put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/PixelBeam")
-                    put(MediaStore.Images.Media.IS_PENDING, 1)
+            context.contentResolver.openInputStream(sourceUri)?.use { inputStream ->
+                context.contentResolver.openOutputStream(targetUri)?.use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                    true
                 }
-            }
-
-            val contentResolver = context.contentResolver
-            val imageUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-
-            imageUri?.let { uri ->
-                contentResolver.openOutputStream(uri)?.use { outputStream ->
-                    if (!bitmap.compress(Bitmap.CompressFormat.JPEG, 95, outputStream)) {
-                        throw IOException("Failed to compress bitmap")
-                    }
-                }
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    contentValues.clear()
-                    contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
-                    contentResolver.update(uri, contentValues, null, null)
-                }
-
-                return@withContext uri
-            }
-
-            return@withContext null
-
+            } ?: false
         } catch (e: Exception) {
-            Log.e(TAG, "Error saving to gallery", e)
-            return@withContext null
+            Log.e(TAG, "Error copying to URI", e)
+            false
         }
     }
 
@@ -133,6 +101,6 @@ class ImageResultViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        // Bitmap cleanup is handled by ReconstructedImageHolder
+        // Cache file cleanup is handled by ReconstructedImageHolder
     }
 }

@@ -1,5 +1,6 @@
 package com.rejown.pixelbeam.di
 
+import android.app.Application
 import com.rejown.pixelbeam.data.local.preferences.ThemePreferences
 import com.rejown.pixelbeam.domain.util.ImageCompressor
 import com.rejown.pixelbeam.domain.util.ImageReconstructor
@@ -10,16 +11,16 @@ import com.rejown.pixelbeam.presentation.sender.preview.ImagePreviewViewModel
 import com.rejown.pixelbeam.presentation.sender.display.QRDisplayViewModel
 import com.rejown.pixelbeam.presentation.receiver.scanner.QRScannerViewModel
 import com.rejown.pixelbeam.presentation.receiver.result.ImageResultViewModel
-import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-val appModule = module {
+
+fun appModule(application: Application) = module {
     // Preferences
-    single { ThemePreferences(androidContext()) }
+    single { ThemePreferences(application) }
 
     // Domain utilities
-    single { ImageCompressor(androidContext()) }
+    single { ImageCompressor(application) }
     single { QRGenerator() }
     single { ImageReconstructor() }
 
@@ -28,6 +29,6 @@ val appModule = module {
     viewModel { ImagePickerViewModel() }
     viewModel { ImagePreviewViewModel(get()) }
     viewModel { QRDisplayViewModel(get()) }
-    viewModel { QRScannerViewModel(get()) }
-    viewModel { ImageResultViewModel(androidContext()) }
+    viewModel { QRScannerViewModel(get(), application) }
+    viewModel { ImageResultViewModel(application) }
 }

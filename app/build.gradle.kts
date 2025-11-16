@@ -40,11 +40,15 @@ android {
     buildFeatures {
         compose = true
     }
+    lint {
+        disable += "UnsafeOptInUsageError"
+    }
 }
 
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
@@ -59,7 +63,6 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // Koin for Dependency Injection
-    implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
     // Splash Screen
