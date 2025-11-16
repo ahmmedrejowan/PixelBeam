@@ -44,11 +44,12 @@ class QRDisplayViewModel(
 
                 // Create metadata
                 val metadata = TransferMetadata(
-                    filename = "image_${System.currentTimeMillis()}.jpg",
+                    filename = compressedImage.filename,
                     originalSizeBytes = compressedImage.originalSizeBytes,
                     compressedSizeBytes = compressedImage.compressedSizeBytes,
                     timestamp = System.currentTimeMillis(),
-                    totalChunks = 0 // Will be updated
+                    totalChunks = 0, // Will be updated
+                    fileChecksum = compressedImage.fileChecksum
                 )
 
                 // Prepare chunks

@@ -1,7 +1,6 @@
 package com.rejown.pixelbeam.domain.util
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
@@ -10,14 +9,14 @@ import java.io.File
 import java.io.FileOutputStream
 
 /**
- * Temporary holder for reconstructed image data between screens.
+ * Temporary holder for reconstructed file data between screens.
  *
- * Now saves images to cache directory immediately to avoid bitmap recycling issues.
+ * Saves original file bytes to cache directory immediately to preserve file integrity.
  * The cached file is used for preview and save operations.
  */
 object ReconstructedImageHolder {
     private const val TAG = "ReconstructedImageHolder"
-    private const val CACHE_FILE_NAME = "received_image_temp.jpg"
+    private const val CACHE_FILE_NAME = "received_file_temp"
 
     @Volatile
     private var _cacheFileUri: Uri? = null
@@ -26,13 +25,13 @@ object ReconstructedImageHolder {
     private var _metadata: TransferMetadata? = null
 
     /**
-     * The cached image file URI, or null if none is stored
+     * The cached file URI, or null if none is stored
      */
     val imageUri: Uri?
         get() = _cacheFileUri
 
     /**
-     * The transfer metadata associated with the reconstructed image
+     * The transfer metadata associated with the reconstructed file
      */
     var metadata: TransferMetadata?
         get() = _metadata
@@ -42,17 +41,23 @@ object ReconstructedImageHolder {
         }
 
     /**
-     * Save bitmap to cache and store metadata
+     * Save original file bytes to cache and store metadata
+     * @param fileBytes The original file bytes (no compression, no modification)
+     * @param metadata Transfer metadata containing filename and other info
      */
-    fun store(context: Context, bitmap: Bitmap, metadata: TransferMetadata) {
+    fun store(context: Context, fileBytes: ByteArray, metadata: TransferMetadata) {
         try {
             // Clear previous cache file
             clear(context)
 
-            // Save bitmap to cache
-            val cacheFile = File(context.cacheDir, CACHE_FILE_NAME)
+            // Get file extension from filename
+            val extension = metadata.filename.substringAfterLast('.', "jpg")
+            val cacheFileName = "$CACHE_FILE_NAME.$extension"
+
+            // Save original file bytes to cache (no modification)
+            val cacheFile = File(context.cacheDir, cacheFileName)
             FileOutputStream(cacheFile).use { out ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 95, out)
+                out.write(fileBytes)
             }
 
             // Get content URI for the cache file
@@ -64,14 +69,9 @@ object ReconstructedImageHolder {
 
             _metadata = metadata
 
-            // Recycle the bitmap now that it's saved
-            if (!bitmap.isRecycled) {
-                bitmap.recycle()
-            }
-
-            Log.d(TAG, "Image saved to cache: $cacheFile")
+            Log.d(TAG, "Original file saved to cache: $cacheFile (${fileBytes.size} bytes)")
         } catch (e: Exception) {
-            Log.e(TAG, "Error storing image to cache", e)
+            Log.e(TAG, "Error storing file to cache", e)
         }
     }
 
@@ -80,10 +80,12 @@ object ReconstructedImageHolder {
      */
     fun clear(context: Context) {
         try {
-            val cacheFile = File(context.cacheDir, CACHE_FILE_NAME)
-            if (cacheFile.exists()) {
-                cacheFile.delete()
-                Log.d(TAG, "Cache file deleted")
+            // Delete all cache files matching our pattern
+            context.cacheDir.listFiles()?.forEach { file ->
+                if (file.name.startsWith(CACHE_FILE_NAME)) {
+                    file.delete()
+                    Log.d(TAG, "Cache file deleted: ${file.name}")
+                }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error deleting cache file", e)

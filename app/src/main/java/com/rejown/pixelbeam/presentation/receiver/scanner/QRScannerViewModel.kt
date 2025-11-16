@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import java.security.MessageDigest
 
 sealed class ScanState {
     data object Idle : ScanState()
@@ -144,25 +145,52 @@ class QRScannerViewModel(
     private suspend fun reconstructImage() {
         try {
             _state.update { it.copy(scanState = ScanState.Reconstructing) }
-            Log.d(TAG, "Starting image reconstruction")
+            Log.d(TAG, "Starting file reconstruction")
 
             // Sort chunks by index
             val sortedChunks = scannedChunks.values.sortedBy { it.index }
 
-            // Reconstruct image
-            val bitmap = imageReconstructor.reconstructImage(sortedChunks)
+            // Reconstruct original file bytes (exact copy, no modification)
+            val fileBytes = imageReconstructor.reconstructImageBytes(sortedChunks)
 
-            if (bitmap != null && metadata != null) {
-                // Store in cache for ImageResultScreen
-                ReconstructedImageHolder.store(context, bitmap, metadata!!)
+            if (fileBytes != null && metadata != null) {
+                // Verify file integrity with checksum
+                val receivedChecksum = calculateSHA256(fileBytes)
+                val expectedChecksum = metadata!!.fileChecksum
 
-                _state.update {
-                    it.copy(scanState = ScanState.Success(bitmap, metadata!!))
+                Log.d(TAG, "Checksum verification:")
+                Log.d(TAG, "  Expected: $expectedChecksum")
+                Log.d(TAG, "  Received: $receivedChecksum")
+
+                if (expectedChecksum.isNotEmpty() && receivedChecksum != expectedChecksum) {
+                    _state.update {
+                        it.copy(scanState = ScanState.Error("File integrity check failed! Checksums don't match."))
+                    }
+                    Log.e(TAG, "Checksum mismatch! File may be corrupted.")
+                    return
                 }
-                Log.d(TAG, "Image reconstruction successful")
+
+                Log.d(TAG, "✓ Checksum verified - file is intact")
+
+                // Store original file bytes in cache
+                ReconstructedImageHolder.store(context, fileBytes, metadata!!)
+
+                // Create bitmap for preview only (not saved)
+                val bitmap = imageReconstructor.bytesToBitmap(fileBytes)
+
+                if (bitmap != null) {
+                    _state.update {
+                        it.copy(scanState = ScanState.Success(bitmap, metadata!!))
+                    }
+                    Log.d(TAG, "File reconstruction successful - original file saved and verified")
+                } else {
+                    _state.update {
+                        it.copy(scanState = ScanState.Error("Failed to create preview bitmap"))
+                    }
+                }
             } else {
                 _state.update {
-                    it.copy(scanState = ScanState.Error("Failed to reconstruct image"))
+                    it.copy(scanState = ScanState.Error("Failed to reconstruct file"))
                 }
             }
 
@@ -189,6 +217,15 @@ class QRScannerViewModel(
                 lastScannedIndex = null
             )
         }
+    }
+
+    /**
+     * Calculate SHA-256 checksum of file bytes
+     */
+    private fun calculateSHA256(bytes: ByteArray): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        val hash = digest.digest(bytes)
+        return hash.joinToString("") { "%02x".format(it) }
     }
 
     override fun onCleared() {

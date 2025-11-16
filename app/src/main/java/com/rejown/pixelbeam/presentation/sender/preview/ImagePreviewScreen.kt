@@ -89,7 +89,7 @@ fun ImagePreviewScreen(
                             modifier = Modifier.size(64.dp)
                         )
                         Text(
-                            text = "Compressing image...",
+                            text = "Preparing image...",
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
@@ -105,7 +105,7 @@ fun ImagePreviewScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Compression stats
+                    // File info
                     Card(
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.primaryContainer
@@ -116,7 +116,7 @@ fun ImagePreviewScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = "Compression Complete",
+                                text = "Ready to Transfer",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
@@ -125,9 +125,9 @@ fun ImagePreviewScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Original Size:")
+                                Text("File Name:")
                                 Text(
-                                    text = String.format("%.2f KB", compressionState.compressedImage.originalSizeKB),
+                                    text = compressionState.compressedImage.filename,
                                     fontWeight = FontWeight.SemiBold
                                 )
                             }
@@ -136,9 +136,9 @@ fun ImagePreviewScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Compressed Size:")
+                                Text("File Size:")
                                 Text(
-                                    text = String.format("%.2f KB", compressionState.compressedImage.compressedSizeKB),
+                                    text = String.format("%.2f KB", compressionState.compressedImage.originalSizeKB),
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.primary
                                 )
@@ -148,10 +148,22 @@ fun ImagePreviewScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Compression Ratio:")
+                                Text("Transfer Mode:")
                                 Text(
-                                    text = String.format("%.1f%%", compressionState.compressedImage.compressionRatio),
+                                    text = "Original (No Compression)",
                                     fontWeight = FontWeight.SemiBold
+                                )
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Checksum:")
+                                Text(
+                                    text = compressionState.compressedImage.fileChecksum.take(16) + "...",
+                                    fontWeight = FontWeight.SemiBold,
+                                    style = MaterialTheme.typography.bodySmall
                                 )
                             }
                         }
@@ -159,7 +171,7 @@ fun ImagePreviewScreen(
 
                     // Image preview
                     Text(
-                        text = "Compressed Preview",
+                        text = "Image Preview",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )

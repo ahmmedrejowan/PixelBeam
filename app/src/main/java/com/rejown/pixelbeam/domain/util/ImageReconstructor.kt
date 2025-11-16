@@ -26,14 +26,14 @@ class ImageReconstructor {
     }
 
     /**
-     * Reconstructs an image from a list of QR code chunks.
+     * Reconstructs original file data from a list of QR code chunks.
      *
      * @param chunks List of scanned QR chunks, must be sorted by index
-     * @return Reconstructed Bitmap, or null if reconstruction fails
+     * @return Original file bytes, or null if reconstruction fails
      */
-    suspend fun reconstructImage(chunks: List<QRChunk>): Bitmap? = withContext(Dispatchers.Default) {
+    suspend fun reconstructImageBytes(chunks: List<QRChunk>): ByteArray? = withContext(Dispatchers.Default) {
         try {
-            Log.d(TAG, "Reconstructing image from ${chunks.size} chunks")
+            Log.d(TAG, "Reconstructing file from ${chunks.size} chunks")
 
             // Filter out metadata chunks and get data chunks only
             val dataChunks = chunks.filter { !it.isMetadata && it.data != null }
@@ -59,34 +59,40 @@ class ImageReconstructor {
 
             Log.d(TAG, "Combined data length: ${combinedData.length} chars")
 
-            // Decode Base64 to bytes
-            val imageBytes = try {
+            // Decode Base64 to original file bytes
+            val fileBytes = try {
                 Base64.decode(combinedData.toString(), Base64.DEFAULT)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to decode Base64 data", e)
                 return@withContext null
             }
 
-            Log.d(TAG, "Decoded ${imageBytes.size} bytes")
+            Log.d(TAG, "Reconstructed ${fileBytes.size} bytes of original file data")
+            return@withContext fileBytes
 
-            // Convert bytes to Bitmap
-            val bitmap = try {
-                BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to decode bitmap", e)
-                return@withContext null
-            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error reconstructing file", e)
+            return@withContext null
+        }
+    }
 
+    /**
+     * Reconstructs an image bitmap from file bytes (for preview only).
+     *
+     * @param fileBytes Original file bytes
+     * @return Bitmap for preview, or null if decoding fails
+     */
+    suspend fun bytesToBitmap(fileBytes: ByteArray): Bitmap? = withContext(Dispatchers.Default) {
+        try {
+            val bitmap = BitmapFactory.decodeByteArray(fileBytes, 0, fileBytes.size)
             if (bitmap == null) {
                 Log.e(TAG, "Bitmap decoding returned null")
                 return@withContext null
             }
-
-            Log.d(TAG, "Image reconstructed successfully: ${bitmap.width}x${bitmap.height}")
+            Log.d(TAG, "Preview bitmap created: ${bitmap.width}x${bitmap.height}")
             return@withContext bitmap
-
         } catch (e: Exception) {
-            Log.e(TAG, "Error reconstructing image", e)
+            Log.e(TAG, "Failed to decode bitmap for preview", e)
             return@withContext null
         }
     }

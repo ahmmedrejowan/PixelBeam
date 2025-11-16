@@ -27,5 +27,6 @@ data class TransferMetadata(
     val compressedSizeBytes: Long,
     val timestamp: Long,
     val mimeType: String = "image/jpeg",
-    val totalChunks: Int
+    val totalChunks: Int,
+    val fileChecksum: String = "" // SHA-256 checksum of entire original file
 )

@@ -175,10 +175,11 @@ fun ImageResultScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Original Size:")
+                                Text("File Size:")
                                 Text(
                                     text = String.format("%.2f KB", metadata.originalSizeBytes / 1024.0),
-                                    fontWeight = FontWeight.SemiBold
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.primary
                                 )
                             }
 
@@ -186,11 +187,10 @@ fun ImageResultScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("Received Size:")
+                                Text("Transfer Mode:")
                                 Text(
-                                    text = String.format("%.2f KB", metadata.compressedSizeBytes / 1024.0),
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.primary
+                                    text = "Original (No Compression)",
+                                    fontWeight = FontWeight.SemiBold
                                 )
                             }
 
@@ -203,6 +203,32 @@ fun ImageResultScreen(
                                     text = "${metadata.totalChunks}",
                                     fontWeight = FontWeight.SemiBold
                                 )
+                            }
+
+                            if (metadata.fileChecksum.isNotEmpty()) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text("Checksum:")
+                                    Text(
+                                        text = metadata.fileChecksum.take(16) + "...",
+                                        fontWeight = FontWeight.SemiBold,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text("Integrity:")
+                                    Text(
+                                        text = "✓ Verified",
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
                             }
 
                             Row(
