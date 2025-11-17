@@ -23,6 +23,9 @@ class ImageCompressor(private val context: Context) {
             // Get filename from URI
             val filename = getFileName(uri) ?: "image_${System.currentTimeMillis()}.jpg"
 
+            // Get MIME type from URI
+            val mimeType = getMimeType(uri) ?: "image/jpeg"
+
             // Read original file bytes
             val originalBytes = context.contentResolver.openInputStream(uri)?.use { inputStream ->
                 inputStream.readBytes()
@@ -43,7 +46,8 @@ class ImageCompressor(private val context: Context) {
                 compressedSizeBytes = originalBytes.size.toLong(),
                 compressedBytes = originalBytes,
                 filename = filename,
-                fileChecksum = fileChecksum
+                fileChecksum = fileChecksum,
+                mimeType = mimeType
             )
         } catch (e: Exception) {
             e.printStackTrace()
@@ -78,6 +82,18 @@ class ImageCompressor(private val context: Context) {
             null
         }
     }
+
+    /**
+     * Get MIME type from URI
+     */
+    private fun getMimeType(uri: Uri): String? {
+        return try {
+            context.contentResolver.getType(uri)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 }
 
 /**
@@ -90,7 +106,8 @@ data class CompressedImage(
     val compressedSizeBytes: Long,
     val compressedBytes: ByteArray,
     val filename: String,
-    val fileChecksum: String
+    val fileChecksum: String,
+    val mimeType: String = "image/jpeg"
 ) {
     val originalSizeKB: Double get() = originalSizeBytes / 1024.0
     val compressedSizeKB: Double get() = compressedSizeBytes / 1024.0

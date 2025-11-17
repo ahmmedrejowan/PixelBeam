@@ -74,7 +74,7 @@ class QRGenerator {
 
     /**
      * Prepare image data for QR codes
-     * Returns list of QR chunks with metadata
+     * Returns list of QR chunks with metadata at start and end
      */
     suspend fun prepareQRChunks(
         compressedBytes: ByteArray,
@@ -89,9 +89,12 @@ class QRGenerator {
         )
 
         // Split into chunks
-        val totalChunks = (base64.length + CHUNK_SIZE - 1) / CHUNK_SIZE
+        val dataChunks = (base64.length + CHUNK_SIZE - 1) / CHUNK_SIZE
 
-        for (i in 0 until totalChunks) {
+        // Total = 1 (start metadata) + dataChunks + 1 (end metadata)
+        val totalChunks = dataChunks + 2
+
+        for (i in 0 until dataChunks) {
             val start = i * CHUNK_SIZE
             val end = minOf(start + CHUNK_SIZE, base64.length)
             val chunkData = base64.substring(start, end)
@@ -100,12 +103,13 @@ class QRGenerator {
             val checksum = calculateChecksum(chunkData)
 
             // Format: IMG|TOTAL|INDEX|CHECKSUM|DATA
+            // Index will be i+1 (after start metadata)
             val qrContent = buildString {
                 append(HEADER)
                 append("|")
                 append(totalChunks.toString().padStart(3, '0'))
                 append("|")
-                append(i.toString().padStart(3, '0'))
+                append((i + 1).toString().padStart(3, '0'))
                 append("|")
                 append(checksum)
                 append("|")
@@ -114,7 +118,7 @@ class QRGenerator {
 
             chunks.add(
                 QRChunk(
-                    index = i,
+                    index = i + 1,
                     total = totalChunks,
                     content = qrContent,
                     checksum = checksum,
@@ -123,32 +127,30 @@ class QRGenerator {
             )
         }
 
-        // Add metadata as the first chunk (index 0)
-        // Update metadata with correct total chunks
-        val updatedMetadata = metadata.copy(totalChunks = totalChunks + 1)
+        // Prepare metadata with correct total chunks
+        val updatedMetadata = metadata.copy(totalChunks = totalChunks)
         val metadataJson = Json.encodeToString(updatedMetadata)
         val metadataChecksum = calculateChecksum(metadataJson)
 
-        // Format: IMG|TOTAL|INDEX|CHECKSUM|DATA
-        val metadataContent = buildString {
+        // Add start metadata chunk (index 0)
+        val startMetadataContent = buildString {
             append(HEADER)
             append("|")
-            append((totalChunks + 1).toString().padStart(3, '0'))
+            append(totalChunks.toString().padStart(3, '0'))
             append("|")
-            append("000") // Index 0 for metadata
+            append("000") // Index 0 for start metadata
             append("|")
             append(metadataChecksum)
             append("|")
             append(metadataJson)
         }
 
-        // Insert metadata as first chunk
         chunks.add(
             0,
             QRChunk(
                 index = 0,
-                total = totalChunks + 1,
-                content = metadataContent,
+                total = totalChunks,
+                content = startMetadataContent,
                 checksum = metadataChecksum,
                 data = metadataJson,
                 isMetadata = true,
@@ -156,26 +158,32 @@ class QRGenerator {
             )
         )
 
-        // Update indices of data chunks
-        val reindexedChunks = chunks.mapIndexed { idx, chunk ->
-            if (idx == 0) {
-                chunk // Keep metadata chunk as is
-            } else {
-                // Update data chunks to have index starting from 1
-                val newIndex = idx
-                val newContent = chunk.content.replace(
-                    "IMG|${totalChunks.toString().padStart(3, '0')}|${(idx - 1).toString().padStart(3, '0')}",
-                    "IMG|${(totalChunks + 1).toString().padStart(3, '0')}|${newIndex.toString().padStart(3, '0')}"
-                )
-                chunk.copy(
-                    index = newIndex,
-                    total = totalChunks + 1,
-                    content = newContent
-                )
-            }
+        // Add end metadata chunk (index = totalChunks - 1)
+        val endMetadataContent = buildString {
+            append(HEADER)
+            append("|")
+            append(totalChunks.toString().padStart(3, '0'))
+            append("|")
+            append((totalChunks - 1).toString().padStart(3, '0'))
+            append("|")
+            append(metadataChecksum)
+            append("|")
+            append(metadataJson)
         }
 
-        reindexedChunks
+        chunks.add(
+            QRChunk(
+                index = totalChunks - 1,
+                total = totalChunks,
+                content = endMetadataContent,
+                checksum = metadataChecksum,
+                data = metadataJson,
+                isMetadata = true,
+                metadata = updatedMetadata
+            )
+        )
+
+        chunks
     }
 
     /**

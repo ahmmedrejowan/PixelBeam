@@ -61,7 +61,7 @@ fun ImageResultScreen(
 
     // File picker launcher for saving image
     val saveFileLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument("image/jpeg")
+        contract = ActivityResultContracts.CreateDocument("image/*")
     ) { uri ->
         if (uri != null) {
             viewModel.saveToUri(uri)
@@ -282,7 +282,10 @@ fun ImageResultScreen(
                         }
                         Button(
                             onClick = {
-                                val filename = state.metadata?.filename ?: "pixelbeam_${System.currentTimeMillis()}.jpg"
+                                val filename = state.metadata?.filename ?: run {
+                                    val extension = getExtensionFromMimeType(state.metadata?.mimeType)
+                                    "pixelbeam_${System.currentTimeMillis()}$extension"
+                                }
                                 saveFileLauncher.launch(filename)
                             },
                             modifier = Modifier
@@ -313,7 +316,10 @@ fun ImageResultScreen(
                     else -> {
                         Button(
                             onClick = {
-                                val filename = state.metadata?.filename ?: "pixelbeam_${System.currentTimeMillis()}.jpg"
+                                val filename = state.metadata?.filename ?: run {
+                                    val extension = getExtensionFromMimeType(state.metadata?.mimeType)
+                                    "pixelbeam_${System.currentTimeMillis()}$extension"
+                                }
                                 saveFileLauncher.launch(filename)
                             },
                             modifier = Modifier
@@ -370,5 +376,21 @@ private fun InfoRow(
             fontWeight = FontWeight.SemiBold,
             color = valueColor
         )
+    }
+}
+
+/**
+ * Get file extension from MIME type
+ */
+private fun getExtensionFromMimeType(mimeType: String?): String {
+    return when (mimeType) {
+        "image/jpeg", "image/jpg" -> ".jpg"
+        "image/png" -> ".png"
+        "image/gif" -> ".gif"
+        "image/webp" -> ".webp"
+        "image/bmp" -> ".bmp"
+        "image/heic" -> ".heic"
+        "image/heif" -> ".heif"
+        else -> ".jpg" // Default to .jpg
     }
 }

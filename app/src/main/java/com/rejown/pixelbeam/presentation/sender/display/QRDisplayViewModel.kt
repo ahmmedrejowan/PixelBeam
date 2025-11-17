@@ -50,6 +50,7 @@ class QRDisplayViewModel(
                     originalSizeBytes = compressedImage.originalSizeBytes,
                     compressedSizeBytes = compressedImage.compressedSizeBytes,
                     timestamp = System.currentTimeMillis(),
+                    mimeType = compressedImage.mimeType,
                     totalChunks = 0, // Will be updated
                     fileChecksum = compressedImage.fileChecksum
                 )
