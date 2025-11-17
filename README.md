@@ -33,6 +33,7 @@ This project demonstrates that **files can be transferred between devices withou
 
 This proves it's **technically possible** to transfer data visually through QR codes. While PixelBeam currently focuses on images, the underlying technique can theoretically be applied to any file type - documents, videos, archives, or any binary data.
 
+> [!WARNING]
 > **Important**: This is purely an experimental proof of concept and portfolio project. It is **not practical or useful** for real-world file transfer scenarios. Traditional methods (WiFi, Bluetooth, USB, NFC) are far superior in every practical aspect. This project exists solely to demonstrate that visual data transfer is *possible*, not that it's a good idea.
 
 ---
