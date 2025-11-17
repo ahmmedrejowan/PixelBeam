@@ -26,8 +26,8 @@ data class QRDisplayState(
     val isAutoAdvancing: Boolean = false,
     val hasStarted: Boolean = false,
     val hasReachedEnd: Boolean = false,
-    val autoAdvanceDelayMs: Long = 1500,
-    val availableDelays: List<Long> = listOf(200L, 300L, 400L, 500L, 1000L, 1500L, 2000L, 3000L, 5000L)
+    val autoAdvanceDelayMs: Long = 1000,
+    val availableDelays: List<Long> = listOf(50L, 100L, 150L, 200L, 300L, 400L, 500L, 1000L, 1500L, 2000L, 3000L, 5000L)
 )
 
 class QRDisplayViewModel(
@@ -103,7 +103,7 @@ class QRDisplayViewModel(
                 _state.update {
                     it.copy(
                         currentIndex = newIndex,
-                        hasReachedEnd = newIndex == chunks.size - 1
+                        hasReachedEnd = it.hasReachedEnd || newIndex == chunks.size - 1
                     )
                 }
             }
@@ -113,6 +113,7 @@ class QRDisplayViewModel(
     fun previousQR() {
         val currentState = _state.value
         if (currentState.currentIndex > 0) {
+            // Preserve hasReachedEnd flag - once reached, it stays true
             _state.update { it.copy(currentIndex = it.currentIndex - 1) }
         }
     }
@@ -167,7 +168,7 @@ class QRDisplayViewModel(
                     _state.update {
                         it.copy(
                             currentIndex = newIndex,
-                            hasReachedEnd = newIndex == chunks.size - 1
+                            hasReachedEnd = it.hasReachedEnd || newIndex == chunks.size - 1
                         )
                     }
                 } else {
