@@ -117,23 +117,49 @@ fun ImageResultScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues),
+                    .padding(paddingValues)
+                    .padding(24.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                 ) {
-                    Text(
-                        text = "No Image Data",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    Button(onClick = {
-                        ReconstructedImageHolder.clear(context)
-                        onDiscard()
-                    }) {
-                        Text("Go Back")
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Text(
+                            text = "No Image Data",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Text(
+                            text = "No received image found",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(
+                            onClick = {
+                                ReconstructedImageHolder.clear(context)
+                                onDiscard()
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                        ) {
+                            Text(
+                                text = "Go Back",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
                     }
                 }
             }
@@ -150,117 +176,71 @@ fun ImageResultScreen(
                 state.metadata?.let { metadata ->
                     Card(
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
-                        )
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
                         Column(
                             modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Text(
-                                text = "Transfer Complete",
+                                text = "Transfer Details",
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text("Filename:")
-                                Text(
-                                    text = metadata.filename,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
+                            InfoRow(
+                                label = "File Name",
+                                value = metadata.filename
+                            )
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text("File Size:")
-                                Text(
-                                    text = String.format("%.2f KB", metadata.originalSizeBytes / 1024.0),
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
+                            InfoRow(
+                                label = "File Size",
+                                value = String.format("%.2f KB", metadata.originalSizeBytes / 1024.0),
+                                valueColor = MaterialTheme.colorScheme.primary
+                            )
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text("Transfer Mode:")
-                                Text(
-                                    text = "Original (No Compression)",
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
+                            InfoRow(
+                                label = "Transfer Mode",
+                                value = "Original (No Compression)"
+                            )
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text("Total Chunks:")
-                                Text(
-                                    text = "${metadata.totalChunks}",
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
+                            InfoRow(
+                                label = "Total Chunks",
+                                value = "${metadata.totalChunks}"
+                            )
 
                             if (metadata.fileChecksum.isNotEmpty()) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text("Checksum:")
-                                    Text(
-                                        text = metadata.fileChecksum.take(16) + "...",
-                                        fontWeight = FontWeight.SemiBold,
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
+                                InfoRow(
+                                    label = "Checksum",
+                                    value = metadata.fileChecksum.take(16) + "...",
+                                    valueStyle = MaterialTheme.typography.bodySmall
+                                )
 
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text("Integrity:")
-                                    Text(
-                                        text = "✓ Verified",
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text("Timestamp:")
-                                Text(
-                                    text = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
-                                        .format(Date(metadata.timestamp)),
-                                    fontWeight = FontWeight.SemiBold
+                                InfoRow(
+                                    label = "Integrity",
+                                    value = "✓ Verified",
+                                    valueColor = MaterialTheme.colorScheme.primary
                                 )
                             }
+
+                            InfoRow(
+                                label = "Timestamp",
+                                value = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+                                    .format(Date(metadata.timestamp))
+                            )
                         }
                     }
                 }
 
                 // Image preview
-                Text(
-                    text = "Received Image",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(400.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                        .height(320.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                 ) {
                     state.imageUri?.let { uri ->
                         coil.compose.AsyncImage(
@@ -286,28 +266,47 @@ fun ImageResultScreen(
                     }
 
                     is SaveState.Error -> {
-                        Text(
-                            text = (state.saveState as SaveState.Error).message,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = (state.saveState as SaveState.Error).message,
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
                         Button(
                             onClick = {
                                 val filename = state.metadata?.filename ?: "pixelbeam_${System.currentTimeMillis()}.jpg"
                                 saveFileLauncher.launch(filename)
                             },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
                         ) {
-                            Text("Retry Save")
+                            Text(
+                                text = "Retry Save",
+                                style = MaterialTheme.typography.titleMedium
+                            )
                         }
                         OutlinedButton(
                             onClick = {
                                 ReconstructedImageHolder.clear(context)
                                 onDiscard()
                             },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
                         ) {
-                            Text("Discard")
+                            Text(
+                                text = "Discard",
+                                style = MaterialTheme.typography.titleMedium
+                            )
                         }
                     }
 
@@ -317,9 +316,14 @@ fun ImageResultScreen(
                                 val filename = state.metadata?.filename ?: "pixelbeam_${System.currentTimeMillis()}.jpg"
                                 saveFileLauncher.launch(filename)
                             },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
                         ) {
-                            Text("Save Image")
+                            Text(
+                                text = "Save Image",
+                                style = MaterialTheme.typography.titleMedium
+                            )
                         }
 
                         OutlinedButton(
@@ -327,13 +331,44 @@ fun ImageResultScreen(
                                 ReconstructedImageHolder.clear(context)
                                 onDiscard()
                             },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
                         ) {
-                            Text("Discard")
+                            Text(
+                                text = "Discard",
+                                style = MaterialTheme.typography.titleMedium
+                            )
                         }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun InfoRow(
+    label: String,
+    value: String,
+    valueColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    valueStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyMedium
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+        )
+        Text(
+            text = value,
+            style = valueStyle,
+            fontWeight = FontWeight.SemiBold,
+            color = valueColor
+        )
     }
 }

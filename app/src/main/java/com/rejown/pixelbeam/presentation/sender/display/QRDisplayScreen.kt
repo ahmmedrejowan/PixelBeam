@@ -201,6 +201,25 @@ fun QRDisplayScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    // Estimated transfer time
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Estimated Time:",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                        )
+                        Text(
+                            text = formatEstimatedTime(state.autoAdvanceDelayMs * chunks.size),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+
                     // Square QR Code Card
                     Card(
                         modifier = Modifier
@@ -392,5 +411,40 @@ private fun formatDelay(delayMs: Long): String {
         delayMs < 1000 -> "${delayMs}ms"
         delayMs % 1000 == 0L -> "${delayMs / 1000}s"
         else -> "${delayMs / 1000.0}s"
+    }
+}
+
+/**
+ * Helper function to format estimated time in milliseconds to readable string
+ */
+private fun formatEstimatedTime(totalMs: Long): String {
+    return when {
+        totalMs < 1000 -> "${totalMs}ms"
+        totalMs < 60000 -> {
+            val seconds = totalMs / 1000.0
+            if (totalMs % 1000 == 0L) {
+                "${totalMs / 1000}s"
+            } else {
+                String.format("%.1fs", seconds)
+            }
+        }
+        totalMs < 3600000 -> {
+            val minutes = totalMs / 60000
+            val seconds = (totalMs % 60000) / 1000
+            if (seconds == 0L) {
+                "${minutes}m"
+            } else {
+                "${minutes}m ${seconds}s"
+            }
+        }
+        else -> {
+            val hours = totalMs / 3600000
+            val minutes = (totalMs % 3600000) / 60000
+            if (minutes == 0L) {
+                "${hours}h"
+            } else {
+                "${hours}h ${minutes}m"
+            }
+        }
     }
 }
