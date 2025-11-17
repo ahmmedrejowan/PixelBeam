@@ -16,6 +16,12 @@ sealed class Screen {
     @Serializable
     data object Home : Screen()
 
+    /**
+     * About screen - App information and developer details
+     */
+    @Serializable
+    data object About : Screen()
+
     // ============ SENDER FLOW ============
 
     /**

@@ -1,0 +1,153 @@
+Starting a Gradle Daemon, 1 incompatible Daemon could not be reused, use --status for details
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :app:mergeReleaseNativeLibs UP-TO-DATE
+> Task :app:stripReleaseDebugSymbols UP-TO-DATE
+> Task :app:extractReleaseNativeSymbolTables UP-TO-DATE
+> Task :app:mergeReleaseNativeDebugMetadata NO-SOURCE
+> Task :app:checkReleaseDuplicateClasses UP-TO-DATE
+> Task :app:buildKotlinToolingMetadata UP-TO-DATE
+> Task :app:generateReleaseBuildConfig
+> Task :app:checkReleaseAarMetadata UP-TO-DATE
+> Task :app:processReleaseNavigationResources
+> Task :app:compileReleaseNavigationResources UP-TO-DATE
+> Task :app:generateReleaseResValues UP-TO-DATE
+> Task :app:mapReleaseSourceSetPaths
+> Task :app:generateReleaseResources
+> Task :app:packageReleaseResources
+> Task :app:createReleaseCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksRelease UP-TO-DATE
+> Task :app:processReleaseMainManifest UP-TO-DATE
+> Task :app:processReleaseManifest UP-TO-DATE
+> Task :app:processReleaseManifestForPackage UP-TO-DATE
+> Task :app:javaPreCompileRelease UP-TO-DATE
+> Task :app:desugarReleaseFileDependencies UP-TO-DATE
+> Task :app:mergeReleaseStartupProfile UP-TO-DATE
+> Task :app:parseReleaseLocalResources
+> Task :app:mergeExtDexRelease UP-TO-DATE
+> Task :app:mergeReleaseArtProfile UP-TO-DATE
+> Task :app:mergeReleaseShaders UP-TO-DATE
+> Task :app:compileReleaseShaders NO-SOURCE
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :app:mergeReleaseAssets UP-TO-DATE
+> Task :app:compressReleaseAssets UP-TO-DATE
+> Task :app:extractReleaseVersionControlInfo
+> Task :app:extractProguardFiles UP-TO-DATE
+> Task :app:collectReleaseDependencies UP-TO-DATE
+> Task :app:sdkReleaseDependencyData UP-TO-DATE
+> Task :app:mergeReleaseResources
+> Task :app:writeReleaseAppMetadata UP-TO-DATE
+> Task :app:writeReleaseSigningConfigVersions UP-TO-DATE
+> Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :app:preReleaseUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileReleaseUnitTest UP-TO-DATE
+> Task :app:processReleaseResources
+> Task :app:optimizeReleaseResources
+
+> Task :app:compileDebugKotlin FAILED
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:113:21 Unresolved reference 'FeatureItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:114:21 Unresolved reference 'FeatureItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:115:21 Unresolved reference 'FeatureItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:116:21 Unresolved reference 'FeatureItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:117:21 Unresolved reference 'FeatureItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:151:21 Unresolved reference 'LinkItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:166:21 Unresolved reference 'LinkItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:181:21 Unresolved reference 'LinkItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:196:21 Unresolved reference 'LinkItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:208:17 Syntax error: Expecting an element.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:208:18 Syntax error: Unexpected tokens (use ';' to separate expressions on the same line).
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:240:17 Syntax error: Expecting an element.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:240:18 Syntax error: Unexpected tokens (use ';' to separate expressions on the same line).
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:292:1 Modifier 'private' is not applicable to 'local function'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:302:1 Modifier 'private' is not applicable to 'local function'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:333:2 Syntax error: Expecting '}'.
+
+> Task :app:compileReleaseKotlin FAILED
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:113:21 Unresolved reference 'FeatureItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:114:21 Unresolved reference 'FeatureItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:115:21 Unresolved reference 'FeatureItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:116:21 Unresolved reference 'FeatureItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:117:21 Unresolved reference 'FeatureItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:151:21 Unresolved reference 'LinkItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:166:21 Unresolved reference 'LinkItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:181:21 Unresolved reference 'LinkItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:196:21 Unresolved reference 'LinkItem'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:208:17 Syntax error: Expecting an element.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:208:18 Syntax error: Unexpected tokens (use ';' to separate expressions on the same line).
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:240:17 Syntax error: Expecting an element.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:240:18 Syntax error: Unexpected tokens (use ';' to separate expressions on the same line).
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:292:1 Modifier 'private' is not applicable to 'local function'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:302:1 Modifier 'private' is not applicable to 'local function'.
+e: file:///Users/rejowan/AndroidStudioProjects/PixelBeam/app/src/main/java/com/rejown/pixelbeam/presentation/about/AboutScreen.kt:333:2 Syntax error: Expecting '}'.
+
+FAILURE: Build completed with 2 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':app:compileReleaseKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+BUILD FAILED in 8s
+72 actionable tasks: 12 executed, 60 up-to-date

@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.rejown.pixelbeam.presentation.about.AboutScreen
 import com.rejown.pixelbeam.presentation.home.HomeScreen
 import com.rejown.pixelbeam.presentation.sender.picker.ImagePickerScreen
 import com.rejown.pixelbeam.presentation.sender.preview.ImagePreviewScreen
@@ -34,7 +35,17 @@ fun PixelBeamNavHost(
         composable<Screen.Home> {
             HomeScreen(
                 onSendClick = { navController.navigate(Screen.ImagePicker) },
-                onReceiveClick = { navController.navigate(Screen.QRScanner) }
+                onReceiveClick = { navController.navigate(Screen.QRScanner) },
+                onAboutClick = { navController.navigate(Screen.About) }
+            )
+        }
+
+        // ============ ABOUT SCREEN ============
+        composable<Screen.About> {
+            AboutScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
             )
         }
 
