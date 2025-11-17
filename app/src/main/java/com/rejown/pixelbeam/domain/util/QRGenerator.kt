@@ -22,7 +22,7 @@ class QRGenerator {
 
     companion object {
         private const val QR_SIZE = 512
-        private const val CHUNK_SIZE = 600 // Safe size for QR codes with medium error correction
+        private const val CHUNK_SIZE = 650 // Optimized chunk size for QR codes
         private const val HEADER = "IMG"
     }
 
@@ -187,15 +187,18 @@ class QRGenerator {
     }
 
     /**
-     * Generate QR code bitmaps for all chunks
+     * Generate QR code bitmaps for all chunks with progress reporting
      */
-    suspend fun generateQRCodesForChunks(chunks: List<QRChunk>): List<QRChunk> =
-        withContext(Dispatchers.Default) {
-            chunks.map { chunk ->
-                val qrBitmap = generateQRCode(chunk.content)
-                chunk.copy(qrBitmap = qrBitmap)
-            }
+    suspend fun generateQRCodesForChunks(
+        chunks: List<QRChunk>,
+        onProgress: (Int, Int) -> Unit = { _, _ -> }
+    ): List<QRChunk> = withContext(Dispatchers.Default) {
+        chunks.mapIndexed { index, chunk ->
+            val qrBitmap = generateQRCode(chunk.content)
+            onProgress(index + 1, chunks.size)
+            chunk.copy(qrBitmap = qrBitmap)
         }
+    }
 
     /**
      * Calculate MD5 checksum for data validation

@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -137,9 +139,10 @@ fun QRDisplayScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .padding(16.dp),
+                        .verticalScroll(rememberScrollState())
+                        .padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     // Progress header
                     Row(
@@ -231,7 +234,7 @@ fun QRDisplayScreen(
                         )
                     ) {
                         Box(
-                            modifier = Modifier.fillMaxSize().padding(16.dp),
+                            modifier = Modifier.fillMaxSize().padding(8.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             currentChunk?.qrBitmap?.let { bitmap ->
@@ -280,7 +283,7 @@ fun QRDisplayScreen(
                             onClick = { viewModel.startTransfer() },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(64.dp)
+                                .height(56.dp)
                         ) {
                             Icon(
                                 Icons.Default.PlayArrow,
@@ -346,7 +349,6 @@ fun QRDisplayScreen(
 
                     // Finish button - shown after reaching the end at least once
                     if (state.hasReachedEnd) {
-                        Spacer(modifier = Modifier.height(8.dp))
                         Button(
                             onClick = {
                                 TempDataHolder.clear()
@@ -354,7 +356,7 @@ fun QRDisplayScreen(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(64.dp)
+                                .height(56.dp)
                         ) {
                             Text(
                                 text = "Finish Transfer",

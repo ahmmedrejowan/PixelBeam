@@ -27,7 +27,7 @@ data class QRDisplayState(
     val hasStarted: Boolean = false,
     val hasReachedEnd: Boolean = false,
     val autoAdvanceDelayMs: Long = 1000,
-    val availableDelays: List<Long> = listOf(50L, 100L, 150L, 200L, 300L, 400L, 500L, 1000L, 1500L, 2000L, 3000L, 5000L)
+    val availableDelays: List<Long> = listOf(50L, 100L, 150L, 200L, 250L, 300L, 400L, 500L, 1000L, 1500L, 2000L, 3000L, 5000L)
 )
 
 class QRDisplayViewModel(
@@ -71,8 +71,17 @@ class QRDisplayViewModel(
                     )
                 }
 
-                // Generate QR bitmaps for all chunks
-                val chunksWithQR = qrGenerator.generateQRCodesForChunks(chunks)
+                // Generate QR bitmaps for all chunks with progress updates
+                val chunksWithQR = qrGenerator.generateQRCodesForChunks(chunks) { progress, total ->
+                    _state.update {
+                        it.copy(
+                            generationState = QRGenerationState.Generating(
+                                progress = progress,
+                                total = total
+                            )
+                        )
+                    }
+                }
 
                 _state.update {
                     it.copy(
